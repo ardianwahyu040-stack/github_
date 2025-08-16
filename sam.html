@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>happy 3rd anniversary</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+        }
+
+        body {
+            background-color: #fff5f5;
+            color: #333;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Stage Styles */
+        .stage {
+            position: absolute;
+            width: 100%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.5s ease;
+            opacity: 0;
+            transform: translateX(100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+        }
+
+        .stage.active {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 1;
+        }
+
+        .stage.previous {
+            transform: translateX(-100%);
+        }
+
+        /* Card Styles */
+        .card {
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        h1 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        /* Image Styles */
+        .birthday-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .birthday-image:hover {
+            transform: scale(1.02);
+        }
+
+        /* Button Styles */
+        .next-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(255, 107, 107, 0.4);
+        }
+
+        .next-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Confetti Effect */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            top: -10px;
+            z-index: 999;
+        }
+
+        /* Balloon Styles */
+        .balloon {
+            position: fixed;
+            width: 50px;
+            height: 65px;
+            background-color: #f00;
+            border-radius: 50%;
+            animation: float 5s infinite ease-in;
+            opacity: 0.7;
+            z-index: 0;
+        }
+
+        .balloon:nth-child(odd) {
+            background-color: #0af;
+        }
+
+        .balloon:nth-child(3n) {
+            background-color: #ff0;
+            width: 40px;
+            height: 55px;
+        }
+
+        .balloon:before {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 15px;
+            width: 4px;
+            height: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            transform: rotate(45deg);
+            border-radius: 50%;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100vh) rotate(360deg); }
+        }
+
+        /* Stage-specific Styles */
+        #stage1 {
+            background: linear-gradient(135deg, rgba(255,226,226,0.9) 0%, rgba(255,248,202,0.9) 100%);
+        }
+
+        #stage2 {
+            background: linear-gradient(135deg, rgba(202,248,255,0.9) 0%, rgba(226,255,226,0.9) 100%);
+        }
+
+        #stage3 {
+            background: linear-gradient(135deg, rgba(255,226,255,0.9) 0%, rgba(226,226,255,0.9) 100%);
+        }
+
+        #stage4 {
+            background: linear-gradient(135deg, rgba(255,248,202,0.9) 0%, rgba(255,226,226,0.9) 100%);
+        }
+
+        #stage5 {
+            background: linear-gradient(135deg, rgba(226,255,226,0.9) 0%, rgba(202,248,255,0.9) 100%);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+            
+            .birthday-image {
+                max-height: 250px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .next-btn {
+                padding: 10px 25px;
+                font-size: 1rem;
+            }
+            
+            .birthday-image {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Stage 1: Welcome -->
+        <div class="stage active" id="stage1">
+            <div class="card">
+                <h1>🎉 Happy Birthday! 🎉</h1>
+                <p>Get ready for a special birthday journey with 5 wonderful stages!</p>
+                <img src="https://placehold.co/600x400/ff6b6b/white?text=Birthday+Celebration" alt="Colorful birthday celebration with balloons, confetti and cake" class="birthday-image">
+                <p>Click the button below to begin the celebration!</p>
+                <button class="next-btn">Start Celebration</button>
+            </div>
+        </div>
+
+        <!-- Stage 2: Celebration -->
+        <div class="stage" id="stage2">
+            <div class="card">
+                <h1>🎈 Let's Celebrate! 🎈</h1>
+                <p>Today is all about you! Enjoy this special day filled with joy, laughter, and happiness.</p>
+                <img src="" alt="Colorful party scene with streamers and happy guests" class="birthday-image">
+                <p>May your day be as wonderful as you are!</p>
+                <button class="next-btn">Continue Celebration</button>
+            </div>
+        </div>
+
+        <!-- Stage 3: Wishes -->
+        <div class="stage" id="stage3">
+            <div class="card">
+                <h1>✨ Birthday Wishes ✨</h1>
+                <p>On your special day, I wish you success, health, and endless happiness!</p>
+                <img src="asiap.jpg" alt="Close-up of birthday candles with soft glow illuminating a cake" class="birthday-image">
+                <p>May all your dreams come true in the coming year!</p>
+                <button class="next-btn">More Wishes</button>
+            </div>
+        </div>
+
+        <!-- Stage 4: Memories -->
+        <div class="stage" id="stage4">
+            <div class="card">
+                <h1>📸 Cherish the Memories 📸</h1>
+                <p>Birthdays are about creating beautiful memories that last a lifetime.</p>
+                <img src="https://placehold.co/600x400/8ec7ff/white?text=Happy+Moments" alt="Friends laughing together around a birthday cake" class="birthday-image">
+                <p>May this year bring you many more happy moments to cherish!</p>
+                <button class="next-btn">Keep Celebrating</button>
+            </div>
+        </div>
+
+        <!-- Stage 5: Finale -->
+        <div class="stage" id="stage5">
+            <div class="card">
+                <h1>🎂 Happy Birthday! 🎂</h1>
+                <p>Thank you for celebrating with us! Have an amazing year ahead!</p>
+                <img src="https://placehold.co/600x400/ffb36b/white?text=The+End" alt="Beautiful birthday cake with candles ready to be blown" class="birthday-image">
+                <p>Wishing you health, happiness, and success in everything you do!</p>
+                <button class="next-btn" id="final-btn">See You Next Year!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stages = document.querySelectorAll('.stage');
+            const nextButtons = document.querySelectorAll('.next-btn');
+            let currentStage = 0;
+
+            // Create balloons
+            for (let i = 0; i < 15; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                balloon.style.left = Math.random() * 100 + 'vw';
+                balloon.style.animationDuration = 4 + Math.random() * 6 + 's';
+                balloon.style.animationDelay = Math.random() * 5 + 's';
+                document.body.appendChild(balloon);
+            }
+
+            // Next button functionality
+            nextButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from current stage
+                    stages[currentStage].classList.remove('active');
+                    stages[currentStage].classList.add('previous');
+                    
+                    // Increase current stage
+                    currentStage++;
+                    
+                    // Add active class to next stage
+                    stages[currentStage].classList.add('active');
+                    
+                    // Final button special effect
+                    if (currentStage === stages.length - 1) {
+                        document.getElementById('final-btn').addEventListener('click', function() {
+                            createConfetti();
+                        });
+                    }
+                });
+            });
+
+            // Confetti effect
+            function createConfetti() {
+                const colors = ['#ff6b6b', '#ff8e8e', '#6b8cff', '#8ec7ff', '#ffb36b', '#ffdd6b'];
+                
+                for (let i = 0; i < 100; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = 7 + Math.random() * 8 + 'px';
+                    confetti.style.height = confetti.style.width;
+                    confetti.style.transform = 'rotate(' + Math.random() * 360 + 'deg)';
+
+                    const animationDuration = 3 + Math.random() * 5;
+                    confetti.style.animation = `confettiFall ${animationDuration}s linear forwards`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, animationDuration * 1000);
+                }
+                
+                // Add CSS for confettiFall animation
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes confettiFall {
+                        0% {
+                            top: -10px;
+                            opacity: 1;
+                        }
+                        100% {
+                            top: 100vh;
+                            opacity: 0;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        });
+    </script>
+</body>
+</html>
