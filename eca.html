@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Birthday Journey</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fff5f5;
+            color: #333;
+            overflow-x: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+        
+        .step {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            text-align: center;
+            opacity: 0;
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: scale(0.9);
+            pointer-events: none;
+        }
+        
+        .step.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+        
+        .heading {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            animation: pulse 2s infinite;
+        }
+        
+        .photo-container {
+            width: 80%;
+            max-width: 500px;
+            height: 300px;
+            margin: 20px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.5s ease;
+        }
+        
+        .photo-container:hover {
+            transform: scale(1.03);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.5s ease;
+        }
+        
+        .message {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin: 20px 0;
+            padding: 0 15px;
+            max-width: 800px;
+        }
+        
+        .long-message {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            max-width: 800px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            animation: fadeIn 2s;
+        }
+        
+        .button-container {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255,107,107,0.4);
+        }
+        
+        .nav-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .progress-bar {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ddd;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .progress-dot.active {
+            background-color: #ff6b6b;
+            transform: scale(1.3);
+        }
+        
+        .floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .heart {
+            position: absolute;
+            color: #ff6b6b;
+            animation: float ease-in-out;
+            opacity: 0;
+        }
+        
+        .audio-control {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.7);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        .audio-control:hover {
+            transform: scale(1.1);
+        }
+        
+        #video-container {
+            width: 80%;
+            max-width: 800px;
+            height: 400px;
+            margin: 20px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        #video-placeholder {
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #888;
+            font-size: 1.2rem;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideInLeft {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-30px);}
+            60% {transform: translateY(-15px);}
+        }
+        
+        .photo-animation {
+            animation: bounce 1.5s ease;
+        }
+        
+        .text-animation {
+            animation: fadeIn 1.5s ease, slideInLeft 1s ease;
+        }
+        
+        .button-animation {
+            animation: fadeIn 2s ease, slideInRight 1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Step 1: Opening -->
+        <div class="step active">
+            <h1 class="heading">Happy Birthday, My Love!</h1>
+            <div class="photo-container photo-animation">
+                <img src="https://placehold.co/800x500" alt="Romantic couple silhouette against sunset with hearts floating in the air">
+            </div>
+            <p class="message text-animation">Today is your special day, and I want to take you on a beautiful journey through our wonderful moments together.</p>
+            <div class="button-container button-animation">
+                <button class="nav-button" onclick="nextStep()">Start the Journey →</button>
+            </div>
+        </div>
+        
+        <!-- Step 2: First Memory -->
+        <div class="step">
+            <h2 class="heading">Our First Meeting</h2>
+            <div class="photo-container">
+                <img src="https://placehold.co/800x500" alt="Coffee shop scene where we first met, with two cups on wooden table, soft lighting creating romantic atmosphere">
+            </div>
+            <p class="message">Remember when we first met? That moment changed my life forever. Your smile, your laugh, everything about you captured my heart immediately.</p>
+            <div class="button-container">
+                <button class="nav-button" onclick="prevStep()">← Back</button>
+                <button class="nav-button" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Second Memory -->
+        <div class="step">
+            <h2 class="heading">Our First Adventure</h2>
+            <div class="photo-container">
+                <img src="https://placehold.co/800x500" alt="Couple hiking up a mountain trail together, holding hands, with breathtaking valley view in background">
+            </div>
+            <p class="message">Our first trip together showed me how perfectly we complement each other. You make every adventure special and memorable.</p>
+            <div class="button-container">
+                <button class="nav-button" onclick="prevStep()">← Back</button>
+                <button class="nav-button" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+        
+        <!-- Step 4: Third Memory -->
+        <div class="step">
+            <h2 class="heading">Special Moments</h2>
+            <div class="photo-container">
+                <img src="https://placehold.co/800x500" alt="Romantic candlelit dinner setup with roses and wine glasses, creating intimate atmosphere">
+            </div>
+            <p class="long-message">Every moment with you becomes a cherished memory. From our lazy Sunday mornings to spontaneous late-night drives, you've filled my life with happiness beyond measure. On this special day, I want you to know that you're the most wonderful person I've ever known. Your kindness, your passion, your beautiful soul - all of these make me fall in love with you more each day.</p>
+            <div class="button-container">
+                <button class="nav-button" onclick="prevStep()">← Back</button>
+                <button class="nav-button" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+        
+        <!-- Step 5: Fourth Memory -->
+        <div class="step">
+            <h2 class="heading">Joyful Times</h2>
+            <div class="photo-container">
+                <img src="https://placehold.co/800x500" alt="Couple laughing together at the beach, wearing sunglasses, with ocean waves behind them">
+            </div>
+            <p class="message">Your laughter is my favorite melody, your happiness my greatest wish. May your birthday be filled with as much joy as you've brought into my life.</p>
+            <div class="button-container">
+                <button class="nav-button" onclick="prevStep()">← Back</button>
+                <button class="nav-button" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+        
+        <!-- Step 6: Fifth Memory -->
+        <div class="step">
+            <h2 class="heading">Growing Together</h2>
+            <div class="photo-container">
+                <img src="https://placehold.co/800x500" alt="Couple planting tree together, symbolizing growth and nurturing their relationship">
+            </div>
+            <p class="long-message">Like a garden that flourishes with care, our love has grown stronger with each passing day. Together we've weathered storms and celebrated sunshine, and through it all, my love for you has only deepened. On your birthday, I want to celebrate not just your birth, but every moment we've shared and every joy yet to come. May this year bring you all the happiness you deserve, and may our love continue to blossom in ways we can't yet imagine.</p>
+            <div class="button-container">
+                <button class="nav-button" onclick="prevStep()">← Back</button>
+                <button class="nav-button" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+        
+        <!-- Step 7: Celebration -->
+        <div class="step">
+            <h2 class="heading">Celebration</h2>
+            <div class="photo-container">
+                <img src="https://placehold.co/800x500" alt="Birthday cake decorated with hearts and candles, surrounded by rose petals on table">
+            </div>
+            <p class="message">Today we celebrate you - the incredible person who has made my life complete. May all your dreams come true, and may our love story continue for many more birthdays to come.</p>
+            <div class="button-container">
+                <button class="nav-button" onclick="prevStep()">← Back</button>
+                <button class="nav-button" onclick="nextStep()">Next →</button>
+            </div>
+        </div>
+        
+        <!-- Step 8: Video Message -->
+        <div class="step">
+            <h2 class="heading">A Special Message</h2>
+            <div id="video-container">
+                <div id="video-placeholder">
+                    Your special video will play here
+                </div>
+            </div>
+            <p class="message">For my final surprise, here's a special birthday message just for you! Click play to see it.</p>
+            <div class="button-container">
+                <button class="nav-button" onclick="prevStep()">← Back</button>
+                <button class="nav-button" id="play-video-btn" onclick="playVideo()">Play Video ▶</button>
+            </div>
+        </div>
+        
+        <div class="progress-bar" id="progress-bar"></div>
+        
+        <button class="audio-control" onclick="toggleMusic()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ff6b6b">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+        </button>
+        
+        <div class="floating-hearts" id="floating-hearts"></div>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 8;
+        const steps = document.querySelectorAll('.step');
+        const progressBar = document.getElementById('progress-bar');
+        const floatingHearts = document.getElementById('floating-hearts');
+        const bgMusic = document.getElementById('bg-music');
+        let musicPlaying = false;
+        
+        // Create progress dots
+        for (let i = 0; i < totalSteps; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'progress-dot';
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => goToStep(i);
+            progressBar.appendChild(dot);
+        }
+        
+        function updateProgressBar() {
+            const dots = document.querySelectorAll('.progress-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.remove('active');
+                if (index === currentStep) {
+                    dot.classList.add('active');
+                }
+            });
+        }
+        
+        function nextStep() {
+            if (currentStep < totalSteps - 1) {
+                steps[currentStep].classList.remove('active');
+                currentStep++;
+                steps[currentStep].classList.add('active');
+                updateProgressBar();
+                animateElements();
+                createFloatingHearts();
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 0) {
+                steps[currentStep].classList.remove('active');
+                currentStep--;
+                steps[currentStep].classList.add('active');
+                updateProgressBar();
+                animateElements();
+            }
+        }
+        
+        function goToStep(step) {
+            steps[currentStep].classList.remove('active');
+            currentStep = step;
+            steps[currentStep].classList.add('active');
+            updateProgressBar();
+            animateElements();
+            if (currentStep === totalSteps - 1) {
+                createFloatingHearts();
+            }
+        }
+        
+        function animateElements() {
+            const currentStepElement = steps[currentStep];
+            const photos = currentStepElement.querySelectorAll('.photo-container');
+            const messages = currentStepElement.querySelectorAll('.message, .long-message');
+            const buttons = currentStepElement.querySelectorAll('.nav-button');
+            
+            photos.forEach((photo, index) => {
+                photo.style.animation = 'none';
+                setTimeout(() => {
+                    photo.style.animation = 'bounce 1.5s ease';
+                }, 100);
+            });
+            
+            messages.forEach((message, index) => {
+                message.style.animation = 'none';
+                setTimeout(() => {
+                    message.style.animation = 'fadeIn 1.5s ease, slideInLeft 1s ease';
+                }, 200);
+            });
+            
+            buttons.forEach((button, index) => {
+                button.style.animation = 'none';
+                setTimeout(() => {
+                    button.style.animation = 'fadeIn 2s ease, slideInRight 1s ease';
+                }, 300);
+            });
+        }
+        
+        function createFloatingHearts() {
+            // Clear existing hearts
+            floatingHearts.innerHTML = '';
+            
+            // Create new hearts
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('span');
+                    heart.className = 'heart';
+                    heart.innerHTML = '❤';
+                    heart.style.left = `${Math.random() * 100}%`;
+                    heart.style.fontSize = `${Math.random() * 20 + 10}px`;
+                    heart.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                    heart.style.animationDelay = `${Math.random() * 2}s`;
+                    floatingHearts.appendChild(heart);
+                    
+                    // Remove heart after animation completes
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 10000);
+                }, i * 300);
+            }
+        }
+        
+        function toggleMusic() {
+            if (musicPlaying) {
+                bgMusic.pause();
+                musicPlaying = false;
+            } else {
+                bgMusic.play();
+                musicPlaying = true;
+            }
+        }
+        
+        function playVideo() {
+            const videoPlaceholder = document.getElementById('video-placeholder');
+            const playBtn = document.getElementById('play-video-btn');
+            
+            // Replace with your actual video URL
+            const videoUrl = 'https://example.com/your-birthday-video.mp4';
+            
+            videoPlaceholder.innerHTML = `
+                <video controls autoplay width="100%" height="100%">
+                    <source src="${videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            `;
+            
+            playBtn.textContent = 'Playing...';
+            playBtn.disabled = true;
+        }
+        
+        // Initialize animations
+        animateElements();
+        createFloatingHearts();
+    </script>
+</body>
+</html>
