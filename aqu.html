@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Anniversary Slides</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#c7ecff;           
+    --ink:#3b3b3b;
+    --muted:#6f5c6a;        
+    --card:#d7f3ff;
+    --shadow: 0 18px 40px rgba(0,0,0,.18);
+    --radius:22px;
+    --btnPrev:#6ea7ff;      
+    --btnNext:#6a4a4a;      
+    --music:#b67ac3;        
+  }
+
+  *{box-sizing:border-box}
+  html,body{
+    margin:0;
+    height:100%;
+    font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .app{
+    min-height:100dvh;
+    display:grid;
+    place-items:center;
+    padding:72px 18px 120px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* Tombol musik melayang */
+  .music-toggle{
+    position:fixed;
+    top:18px;
+    right:18px;
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:var(--music);
+    color:#fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    cursor:pointer;
+    border:none;
+    outline:none;
+    transition: transform .2s ease, box-shadow .2s ease, opacity .25s ease;
+  }
+  .music-toggle:hover{ transform: translateY(-2px) scale(1.03) }
+  .music-toggle::after{
+    content:"♪";
+    font-size:26px;
+    line-height:1;
+    transform: translateY(-1px);
+  }
+  .music-toggle.paused{ opacity:.6 }
+  .sr-only{
+    position:absolute!important; height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap;
+  }
+
+  /* Track area */
+  .slides{
+    width:min(820px, 100%);
+    position:relative;
+  }
+  .slide{
+    background:transparent;
+    width:100%;
+    min-height:62dvh;
+    display:none;
+    text-align:center;
+    position:relative;
+  }
+  .slide.active{ display:block }
+
+  .title{
+    font-family:"Dancing Script", cursive;
+    color:var(--muted);
+    font-weight:700;
+    font-size:clamp(32px, 6.5vw, 52px);
+    letter-spacing:.5px;
+    margin:12px 0 10px;
+    text-shadow: 0 4px 18px rgba(0,0,0,.08);
+  }
+
+  .caption{
+    display:inline-block;
+    background:var(--card);
+    padding:14px 18px;
+    border-radius:20px;
+    box-shadow: var(--shadow);
+    margin:10px auto 14px;
+    font-weight:700;
+    font-size:clamp(16px, 3.8vw, 22px);
+    color:#8b6f8d;
+    max-width:92%;
+  }
+
+  .text{
+    max-width:88%;
+    margin: 0 auto;
+    line-height:1.8;
+    font-size:clamp(16px, 4vw, 22px);
+  }
+
+  /* Efek goyang pelan */
+  @keyframes sway {
+    0%,100% { transform: rotate(-1.2deg) scale(1.01); }
+    50% { transform: rotate(1.2deg) scale(1.01); }
+  }
+
+  /* Efek goyang samping */
+  @keyframes sideSway {
+    0%, 200% { transform: translateX(0); }
+    1000% { transform: translateX(40px); }
+  }
+
+  /* Gambar & video */
+  .photo{
+    width:min(600px, 100%);
+    aspect-ratio: 16/10;
+    object-fit: cover;
+    border-radius:60px;
+    box-shadow: var(--shadow);
+    margin:15px auto 18px;
+    display:block;
+    background:#fff;
+    animation: sway 20s ease-in-out infinite; /* Menambahkan efek sway */
+  }
+  video.photo{ height:auto }
+
+  /* Tombol Next/Prev */
+  .nav{
+    position:fixed;
+    left:50%;
+    bottom:26px;
+    transform:translateX(-50%);
+    display:flex;
+    z-index:5;
+  }
+  .nav button{
+    width:68px;height:68px;border-radius:50%;
+    border:none;cursor:pointer;color:#fff;
+    box-shadow: 0 12px 28px rgba(0,0,0,.18);
+    font-size:28px;display:grid;place-items:center;
+    transition: transform .12s ease, opacity .2s ease;
+  }
+  .nav button:active{ transform: scale(.96) }
+  .prev{ background:var(--btnPrev) }
+  .next{ background:var(--btnNext) }
+
+  /* Animations */
+  @keyframes fadeUp{
+    from{opacity:0; transform: translateY(px)}
+    to{opacity:1; transform:none}
+  }
+  @keyframes zoomIn{
+    from{opacity:0; transform: scale(.94)}
+    to{opacity:1; transform: scale(1)}
+  }
+  @keyframes floatIn{
+    0%{ opacity:0; transform: translateY(12px) }
+    100%{ opacity:1; transform: none }
+  }
+  .a-text{ animation: fadeUp .4s ease both }
+  .a-photo{ animation: zoomIn .4s ease .05s both }
+  .a-caption{ animation: floatIn .8s ease .1s both }
+
+  .dots{
+    position:fixed; bottom:104px; left:50%; transform:translateX(-50%);
+    display:flex; gap:8px;
+  }
+  .dot{
+    width:9px; height:9px; border-radius:60%;
+    background:#9ccdf8; opacity:.7;
+    transition: transform .2s ease, opacity .2s ease;
+  }
+  .dot.active{ opacity:1; transform: scale(1.35); background:#6ea7ff }
+
+  /* Amplop buka surat */
+  .envelope {
+    position: relative;
+    width: 300px;
+    height: 200px;
+    margin: 0 auto 30px;
+    perspective: 1000px;
+  }
+  .flap {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--muted);
+    clip-path: polygon(0 0, 100% 0, 50% 50%);
+    transform-origin: top;
+    transition: transform 1s ease;
+    z-index: 2;
+  }
+  .letter {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s ease .5s, transform 1s ease .5s;
+    z-index: 1;
+  }
+  .envelope.open .flap {
+    transform: rotateX(-160deg);
+  }
+  .envelope.open .letter {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width:420px){
+    .nav button{ width:62px;height:62px;font-size:26px }
+    .music-toggle{ width:58px;height:58px }
+  }
+</style>
+</head>
+<body>
+
+<main class="app" aria-live="polite">
+  <!-- Toggle musik -->
+  <button class="music-toggle paused" id="musicBtn" aria-label="Toggle musik">
+    <span class="sr-only">Toggle Musik</span>
+  </button>
+
+  <!-- Audio global -->
+  <audio id="bgm" loop preload="auto">
+    <source src="AhaTok_Sampai Jadi Debu_6af704c8-057e-40e0-a613-065412c196b3" type="audio/mpeg">
+  </audio>
+
+  <section class="slides" id="slides">
+    <!-- SLIDE 0 -->
+    <article class="slide active" data-has-audio="true">
+      <h2 class="title a-text">Hi My Beautiful</h2>
+      <img class="photo a-photo" src="b.jpg" alt="Foto berdua pembuka">
+      <div class="caption a-caption"><div>
+      <p class="text a-text">happy anniversary</p></div>
+    </article>
+
+    <!-- SLIDE 1 -->
+    <article class="slide">
+      <h2 class="title a-text">foto pertama</h2>
+      <img class="photo a-photo" src="IMG-20250518-WA0097-01.jpg" alt="Foto pertama">
+      <div class="caption a-caption"></div>
+      <p class="text a-text">slid kedua ini aku mau ngingetin foto yang pertama kamu kasih ke aku cantik banget anjir marai ovt ya kok dia mau ya sama aku ih rai kek codot ngene lik an ...</p>
+    </article>
+
+    <!-- SLIDE 2 -->
+    <article class="slide">
+      <h2 class="title a-text">hal yang biki aku suka sama kamu</h2>
+      <img class="photo a-photo" src="IMG-20250707-WA0071.jpg" alt="">
+      <p class="text a-text">Ya seng marai aku tambah suka sama kamu ki paling penting yaa kamu kui baik banget rada enggak percaya kalo aku cewek sebaik kamu sesabar kamu seng yaa iso ngrubah kebiasaan ku yang buruk makasih yaa cantik muah💋💋
+🚠️ hmm teros aku mau ngingetin lagi nak kamu ki cantikkkk banget yaa cantik banget aku juga heran sih gimana nanti biar bisa punya anak yang cantik kaya kamu kapan' tanya ibu mu lah.
+dann kamu itu juga perhatian rada crewet sama kaya ibuk ☺️🤣💋 rada kaget pas tau kamu galak 'edyan sok nak aku rabi mbek ecaa berarti ngomah ku eneng 2 sumala tapi ngkpapa sihh daripada diem aja kalo aku ada salah I LOVE YOU CANTIK HEHEE ALAY MEN AKU SAIKI YA 😭🤣</p>
+    </article>
+
+    <!-- SLIDE 3 -->
+    <article class="slide">
+      <h2 class="title a-text">inner voice</h2>
+      <img class="photo a-photo" src="IMG-20250815-WA0002.jpg" alt="Couple standing on mountain">
+      <div class="caption a-caption"></div>
+      <p class="text a-text">Setiap perjalanan bersamamu selalu penuh dengan cerita lucu dan kenangan manis njay</p>
+    </article>
+
+    <!-- SLIDE 4 -->
+    <article class="slide">
+      <h2 class="title a-text">Sumala roared</h2>
+      <img class="photo a-photo" src="IMG-20250630-WA0161.jpg" alt="Close-up cuddling">
+      <div class="caption a-caption"></div>
+      <p class="text a-text">Nahh iki nak gek nesu ya 😊 🍟 ketok imut njir neng yo wedi yoan aku sih nak kowe gek nesu ki 🤣🤣</p>
+    </article>
+
+    <!-- SLIDE 5 -->
+    <article class="slide">
+      <h2 class="title a-text">foto favorit</h2>
+      <img class="photo a-photo" src="q.jpg" alt="Couple sunset">
+      <div class="caption a-caption"></div>
+      <p class="text a-text">njay foto favorite barang neng iyo sih tuiki foto paling CUANTIK menurutku dari semua foto seng mbok kirim iki foto paling imut </p>
+    </article>
+
+    <!-- SLIDE 6 VIDEO -->
+    <article class="slide" data-video="true">
+      <h2 class="title a-text">Our Memories</h2>
+      <video class="photo a-photo" id="memVideo" controls preload="metadata">
+        <source src="our-memories.mp4" type="video/mp4">
+      </video>
+      <p class="text a-text">Ganti video ini dengan kenangan favorit kita!</p>
+    </article>
+
+    <!-- SLIDE 7 SURAT -->
+    <article class="slide">
+      <div class="envelope" id="envelope">
+        <div class="flap"></div>
+        <div class="letter">
+          <p class="text a-text" style="animation: sideSway 6s ease-in-out infinite;">
+            Makasih yaa udah hadir di kehidupanku…<br>
+            YOU'RE STILL MY FAVORITE WOMAN 💋💋
+            <h2 class="title a-text">MUAH💋 I LOVE YOU BEAUTIFUL 💋💋</h2>
+          </p>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <div class="nav" role="group">
+    <button class="prev" id="prevBtn">‹</button>
+    <button class="next" id="nextBtn">›</button>
+  </div>
+</main>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dotsBox = document.getElementById('dots');
+  const bgm = document.getElementById('bgm');
+  const musicBtn = document.getElementById('musicBtn');
+  let i = 0;
+
+  // Dots
+  slides.forEach((_, idx)=>{
+    const d=document.createElement('span');
+    d.className = 'dot' + (idx===0?' active':'');
+    d.addEventListener('click', ()=>go(idx));
+    dotsBox.appendChild(d);
+  });
+  const dots=[...document.querySelectorAll('.dot')];
+
+  function applySlideAnimations(slide){
+    slide.querySelectorAll('.a-text, .a-photo, .a-caption').forEach(el=>{
+      el.style.animation='none';
+      void el.offsetWidth;
+      if(el.classList.contains('a-text')) el.style.animation='';
+      if(el.classList.contains('a-photo')) el.style.animation='';
+      if(el.classList.contains('a-caption')) el.style.animation='';
+    });
+  }
+
+  function show(idx){
+    slides.forEach((s,j)=>{
+      s.classList.toggle('active', j===idx);
+      if(j===idx) applySlideAnimations(s);
+    });
+    dots.forEach((d,j)=>d.classList.toggle('active', j===idx));
+
+    // buka surat
+    if(slides[idx].querySelector('#envelope')){
+      const env = slides[idx].querySelector('#envelope');
+      setTimeout(()=>env.classList.add('open'), 400);
+    }
+
+    const onWelcome = slides[idx].dataset.hasAudio === 'true';
+    if(onWelcome){
+      bgm.play().catch(()=>{});
+      musicBtn.classList.remove('paused');
+    }else{
+      if(slides[idx].dataset.video === 'true'){ bgm.volume = 0.25; }
+      else{ bgm.volume = 1; }
+    }
+    slides.forEach((s,j)=>{
+      if(j!==idx && s.dataset.video==='true'){
+        const v = s.querySelector('video');
+        if(v) v.pause();
+      }
+    });
+  }
+
+  function go(to){ i = (to+slides.length) % slides.length; show(i); }
+  prevBtn.addEventListener('click', ()=>go(i-1));
+  nextBtn.addEventListener('click', ()=>go(i+1));
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='ArrowRight') go(i+1);
+    if(e.key==='ArrowLeft') go(i-1);
+  });
+
+  musicBtn.addEventListener('click', ()=>{
+    if(bgm.paused){
+      bgm.play().then(()=>musicBtn.classList.remove('paused')).catch(()=>{});
+    }else{
+      bgm.pause(); musicBtn.classList.add('paused');
+    }
+  });
+
+  document.addEventListener('click', onceStart, {once:true});
+  document.addEventListener('touchstart', onceStart, {once:true});
+  function onceStart(){
+    if(slides[i].dataset.hasAudio==='true'){
+      bgm.play().then(()=>musicBtn.classList.remove('paused')).catch(()=>{});
+    }
+  }
+</script>
+</body>
+</html>
